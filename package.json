@@ -15,8 +15,8 @@
     "clean": "rimraf dist dist-electron"
   },
   "build": {
-    "appId": "com.example.binancedemo",
-    "productName": "BinanceDemo",
+    "appId": "com.example.binancetradingapp",
+    "productName": "BinanceTradingApp",
     "win": {
       "target": "nsis",
       "icon": "public/icon.ico"
@@ -30,7 +30,7 @@
       "dist-electron/**/*"
     ],
     "directories": {
-      "output": "dist"
+      "output": "release"
     }
   },
   "dependencies": {

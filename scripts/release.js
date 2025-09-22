@@ -5,7 +5,7 @@ const path = require('path');
 // 项目根目录（相对于当前脚本）
 const ROOT_DIR = path.join(__dirname, '..');
 // 打包产物目录
-const DIST_DIR = path.join(ROOT_DIR, 'dist');
+const DIST_DIR = path.join(ROOT_DIR, 'release');
 // 读取版本号
 const packageJson = require(path.join(ROOT_DIR, 'package.json'));
 const VERSION = packageJson.version;
@@ -42,11 +42,16 @@ const exec = (cmd, options = {}) => {
       throw new Error('Git工作区存在未提交的更改，请先提交或 stash');
     }
 
-    // 4. 执行Git操作
+    // 4. 执行Git操作（关键修复：用引号包裹带空格的文件路径）
     console.log('🔄 开始同步到Git...');
     
-    // 添加安装包（仅提交dist目录下的安装包）
-    exec(`git add ${installers.map(file => path.join(DIST_DIR, file)).join(' ')}`);
+    // 生成带引号的文件路径（处理空格问题）
+    const quotedPaths = installers
+      .map(file => path.join(DIST_DIR, file))
+      .map(filePath => `"${filePath}"`); // 用双引号包裹路径
+    
+    // 添加安装包（带引号的路径）
+    exec(`git add ${quotedPaths.join(' ')}`);
     
     // 提交变更（如果有新内容）
     try {
