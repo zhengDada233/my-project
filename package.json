@@ -38,7 +38,8 @@
     "electron-log": "^4.4.8",
     "electron-updater": "^6.1.4",
     "pinia": "^3.0.3",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "custom-binance-api": "git+https://${GITHUB_TOKEN}@github.com/zhengDada233/my-project.git#v${VITE_APP_VERSION}"
   },
   "devDependencies": {
     "@types/node": "^20.8.7",

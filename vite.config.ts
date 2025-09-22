@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     // 根据环境设置base
-    base: env.NODE_ENV === 'production' ? './' : '/',
+    base: env.VITE_APP_ENV === 'production' ? './' : '/',
     // 定义全局常量
     define: {
       __APP_VERSION__: JSON.stringify(appVersion),
