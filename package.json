@@ -1,0 +1,123 @@
+{
+  "name": "binance-demo",
+  "version": "1.0.0",
+  "description": "Binance Electron Trading App",
+  "author": "Your Name <your.email@example.com>",
+  "main": "dist-electron/main.cjs",
+  "type": "commonjs",
+  "scripts": {
+    "generate-env": "node scripts/generate-env.js",
+    "dev": "vite --mode development",
+    "build": "vite build --mode production",
+    "prebuild": "npm run generate-env",
+    "build:electron": "tsc electron/main.ts electron/preload.ts electron/strategy.ts electron/strategy-types.ts --outDir dist-electron --target ES2020 --module CommonJS --lib ES2020 --types node --allowSyntheticDefaultImports --esModuleInterop --strict --skipLibCheck --forceConsistentCasingInFileNames --moduleResolution node --resolveJsonModule --sourceMap --noEmitOnError false",
+    "prebuild:electron": "npm run generate-env",
+    "rename-main": "node scripts/rename-main.js",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron . --enable-logging\"",
+    "electron:build": "npm run build && npm run build:electron && npm run rename-main",
+    "dist:win": "npm run electron:build && electron-builder --win --x64 --config.extraMetadata.main=dist-electron/main.cjs",
+    "dist:mac": "npm run electron:build && electron-builder --mac --x64 --config.extraMetadata.main=dist-electron/main.cjs",
+    "dist:linux": "npm run electron:build && electron-builder --linux --x64 --config.extraMetadata.main=dist-electron/main.cjs",
+    "publish": "npm run electron:build && electron-builder --win --x64 --publish always --config.extraMetadata.main=dist-electron/main.cjs",
+    "clean": "rimraf dist dist-electron && if exist release (rmdir /s /q release 2>nul || powershell -Command \"Remove-Item -Recurse -Force release -ErrorAction SilentlyContinue\")",
+    "run:exe": "node scripts/run-app.js",
+    "view-logs": "tail -f logs/app.log",
+    "structure": "echo 'Project Structure:' && find . -type d -name 'node_modules' -prune -o -type f -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'"
+  },
+  "dependencies": {
+    "crypto-js": "^4.2.0",
+    "electron-log": "^5.4.3",
+    "pinia": "^3.0.3",
+    "vue": "^3.3.0",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
+    "@types/node": "^24.5.2",
+    "@vitejs/plugin-vue": "^4.5.0",
+    "concurrently": "^7.6.0",
+    "css-loader": "^7.1.2",
+    "electron": "^22.3.27",
+    "electron-builder": "^23.6.0",
+    "electron-updater": "^6.6.2",
+    "rimraf": "^5.0.5",
+    "sass": "^1.54.0",
+    "sass-loader": "^16.0.5",
+    "shx": "^0.3.4",
+    "typescript": "^5.9.2",
+    "vite": "^5.0.0",
+    "wait-on": "^7.0.1"
+  },
+  "build": {
+    "appId": "com.binance.demo",
+    "productName": "BinanceTradingApp",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*.cjs",
+      "!dist-electron/**/*.js",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "logs",
+        "to": "logs",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.finance"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "category": "Finance"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "your-github-username",
+        "repo": "your-repo-name"
+      }
+    ]
+  }
+}

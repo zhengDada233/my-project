@@ -1,0 +1,38 @@
+// src/components/WebsocketConnector/WebsocketConnector.scss
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.websocket-connector {
+  @include m.card-style;
+
+  .connection-controls {
+    display: flex;
+    gap: v.$spacing-sm;
+    margin-bottom: v.$spacing-md;
+
+    input {
+      flex-grow: 1;
+      padding: v.$spacing-sm;
+      border: 1px solid v.$border-color;
+      border-radius: v.$border-radius;
+    }
+
+    button {
+      @include m.button-style(v.$primary-color);
+      white-space: nowrap;
+    }
+  }
+
+  .messages {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: v.$spacing-md;
+
+    .message {
+      font-family: monospace;
+      font-size: v.$font-size-sm;
+      padding: v.$spacing-sm;
+      border-bottom: 1px solid v.$border-color;
+    }
+  }
+}

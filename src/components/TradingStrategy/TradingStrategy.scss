@@ -1,0 +1,156 @@
+// src/components/TradingStrategy/TradingStrategy.scss
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+@use 'sass:color';
+
+.trading-strategy {
+  @include m.card-style;
+  padding: v.$spacing-md;
+
+  h2 {
+    margin-top: 0;
+    color: v.$text-primary;
+  }
+
+  .strategy-config {
+    margin-bottom: v.$spacing-md;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: v.$spacing-sm;
+
+      label {
+        margin-bottom: v.$spacing-xs;
+        font-weight: bold;
+        color: v.$text-secondary;
+      }
+
+      input {
+        @include m.form-element;
+      }
+    }
+
+    .form-row {
+      display: flex;
+      gap: v.$spacing-md;
+      flex-wrap: wrap;
+
+      .form-group {
+        flex: 1;
+        min-width: 120px;
+      }
+
+      @include m.respond-to('phone') {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+
+    button {
+      @include m.button-style(v.$primary-color);
+      margin-top: v.$spacing-md;
+      width: 100%;
+    }
+  }
+
+  .strategy-status {
+    margin-top: v.$spacing-md;
+    padding: v.$spacing-md;
+    background-color: v.$bg-secondary;
+    border-radius: v.$border-radius;
+    max-height: 300px;
+    overflow-y: auto;
+
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: v.$text-primary;
+      margin: 0;
+      font-size: v.$font-size-sm;
+    }
+  }
+
+  .message {
+    margin-top: v.$spacing-md;
+    padding: v.$spacing-sm;
+    border-radius: v.$border-radius;
+    text-align: center;
+
+    &.error {
+      background-color: color.adjust(v.$danger-color, $lightness: 40%);
+      color: color.adjust(v.$danger-color, $lightness: -20%);
+      border: 1px solid v.$danger-color;
+    }
+
+    &:not(.error) {
+      background-color: color.adjust(v.$success-color, $lightness: 40%);
+      color: color.adjust(v.$success-color, $lightness: -20%);
+      border: 1px solid v.$success-color;
+    }
+  }
+
+  // 在 TradingStrategy.scss 中添加样式
+  .strategy-status {
+    margin-top: v.$spacing-md;
+    padding: v.$spacing-md;
+    background-color: v.$bg-secondary;
+    border-radius: v.$border-radius;
+    max-height: 600px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: v.$text-primary;
+      margin: 0;
+    }
+  }
+
+  .control-panel {
+    margin-top: v.$spacing-md;
+    padding: v.$spacing-md;
+    background-color: color.adjust(v.$bg-secondary, $lightness: 5%);
+    border-radius: v.$border-radius;
+
+    h3 {
+      margin-top: 0;
+    }
+
+    .control-buttons {
+      display: flex;
+      gap: v.$spacing-sm;
+      margin-bottom: v.$spacing-md;
+
+      button {
+        @include m.button-style(v.$secondary-color);
+        flex: 1;
+      }
+    }
+
+    .settings {
+      display: flex;
+      align-items: center;
+      gap: v.$spacing-sm;
+
+      label {
+        white-space: nowrap;
+      }
+
+      input {
+        @include m.form-element;
+        width: 100px;
+      }
+    }
+  }
+
+  // 响应式调整
+  @include m.respond-to('phone') {
+    .control-buttons {
+      flex-direction: column;
+    }
+  }
+}

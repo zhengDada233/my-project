@@ -1,0 +1,56 @@
+// src/styles/_mixins.scss
+@use 'sass:color';
+@use './variables' as *; // 使用命名空间导入变量
+
+// 响应式断点混合器
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == 'phone' {
+    @media (max-width: 600px) { @content; }
+  }
+  @else if $breakpoint == 'tablet' {
+    @media (max-width: 900px) { @content; }
+  }
+  @else if $breakpoint == 'desktop' {
+    @media (min-width: 901px) { @content; }
+  }
+}
+
+// 按钮样式混合
+@mixin button-style($bg-color, $text-color: white) {
+  background-color: $bg-color;
+  color: $text-color;
+  border: none;
+  border-radius: $border-radius;
+  padding: $spacing-sm $spacing-md;
+  cursor: pointer;
+  font-size: $font-size-md;
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust($bg-color, $lightness: -10%);
+  }
+
+  &:disabled {
+    background-color: color.adjust($bg-color, $lightness: 20%);
+    cursor: not-allowed;
+  }
+}
+
+// 卡片样式混合
+@mixin card-style {
+  padding: $spacing-md;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  margin-bottom: $spacing-md;
+  background-color: $bg-primary;
+}
+
+// 表单元素样式混合
+@mixin form-element {
+  padding: $spacing-sm;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  font-size: $font-size-md;
+  width: 100%;
+  box-sizing: border-box;
+}

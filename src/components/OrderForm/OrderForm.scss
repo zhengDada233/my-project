@@ -1,0 +1,121 @@
+// src/components/OrderForm/OrderForm.scss
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+
+.order-form {
+  @include m.card-style;
+  padding: v.$spacing-md;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: v.$spacing-lg;
+    padding-bottom: v.$spacing-md;
+    border-bottom: 1px solid v.$border-color;
+
+    h1 {
+      margin: 0;
+      color: v.$text-primary;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: v.$spacing-md;
+
+      .logout-btn {
+        @include m.button-style(v.$danger-color);
+        padding: v.$spacing-xs v.$spacing-sm;
+        font-size: v.$font-size-sm;
+      }
+    }
+  }
+
+  h3 {
+    margin-top: 0;
+    color: v.$text-primary;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: v.$spacing-md;
+
+    label {
+      margin-bottom: v.$spacing-xs;
+      font-weight: bold;
+      color: v.$text-secondary;
+    }
+
+    input, select {
+      @include m.form-element;
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: v.$spacing-md;
+    flex-wrap: wrap;
+
+    .form-group {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    @include m.respond-to('phone') {
+      flex-direction: column;
+      gap: 0;
+
+      .form-group {
+        min-width: 100%;
+      }
+    }
+  }
+
+  button {
+    @include m.button-style(v.$primary-color);
+    margin-top: v.$spacing-sm;
+    width: 100%;
+  }
+
+  .result {
+    margin-top: v.$spacing-md;
+    padding: v.$spacing-md;
+    background-color: v.$bg-secondary;
+    border-radius: v.$border-radius;
+    max-height: 400px;
+    overflow-y: auto;
+
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: v.$text-primary;
+      margin: 0;
+      font-size: v.$font-size-sm;
+    }
+  }
+
+  .network-diagnostics {
+    margin-top: v.$spacing-lg;
+    padding: v.$spacing-md;
+    border-top: 1px solid v.$border-color;
+
+    .diagnostic-results {
+      margin-top: v.$spacing-md;
+      padding: v.$spacing-md;
+      background-color: v.$bg-secondary;
+      border-radius: v.$border-radius;
+      max-height: 300px;
+      overflow-y: auto;
+
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        color: v.$text-primary;
+        margin: 0;
+        font-size: v.$font-size-sm;
+      }
+    }
+  }
+}

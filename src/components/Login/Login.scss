@@ -1,0 +1,81 @@
+// src/components/Login/Login.scss
+@use '../../styles/variables' as v;
+@use '../../styles/mixins' as m;
+@use "sass:color";
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, v.$primary-color 0%, v.$secondary-color 100%);
+  padding: v.$spacing-md;
+}
+
+.login-form {
+  @include m.card-style;
+  width: 100%;
+  max-width: 400px;
+  padding: v.$spacing-xl;
+  
+  h2 {
+    text-align: center;
+    margin-bottom: v.$spacing-lg;
+    color: v.$text-primary;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: v.$spacing-md;
+    
+    label {
+      margin-bottom: v.$spacing-xs;
+      font-weight: bold;
+      color: v.$text-secondary;
+    }
+    
+    input {
+      @include m.form-element;
+    }
+  }
+  
+  button {
+    @include m.button-style(v.$primary-color);
+    width: 100%;
+    margin-top: v.$spacing-md;
+  }
+  
+  .error-message {
+    margin-top: v.$spacing-md;
+    padding: v.$spacing-sm;
+    background-color: color.adjust(v.$danger-color, $lightness: 40%);
+    border: 1px solid v.$danger-color;
+    border-radius: v.$border-radius;
+    color: color.adjust(v.$danger-color, $lightness: -20%);
+    text-align: center;
+  }
+  
+  .login-tips {
+    margin-top: v.$spacing-lg;
+    padding: v.$spacing-md;
+    background-color: color.adjust(v.$secondary-color, $lightness: 45%);
+    border-radius: v.$border-radius;
+    
+    h3 {
+      margin-top: 0;
+      margin-bottom: v.$spacing-sm;
+      color: v.$text-primary;
+    }
+    
+    ul {
+      margin: 0;
+      padding-left: v.$spacing-md;
+      color: v.$text-secondary;
+      
+      li {
+        margin-bottom: v.$spacing-xs;
+      }
+    }
+  }
+}
