@@ -1,5 +1,6 @@
+import { BinanceApiBase } from './base';
 import { BinanceApiError } from './types';
-import { logger } from '../../utils/logger';
+import { isElectronAPIAvailable, getElectronAPI } from '../electron';
 
 export interface Order {
   symbol: string;
@@ -17,20 +18,22 @@ export interface Order {
   side: string;
 }
 
-export class TradeApi {
+export class TradeApi extends BinanceApiBase {
   // 创建订单
   async createOrder(
     params: any,
     apiKey: string,
     apiSecret: string
   ): Promise<Order> {
-    if (!window.electronAPI) {
+    if (!isElectronAPIAvailable()) {
       throw new Error('Electron API is not available');
     }
 
     try {
+      const logger = require('../../utils/logger').logger;
       logger.info('创建订单:', { ...params, apiKey: '***' });
-      const response = await window.electronAPI.createOrder({
+      
+      const response = await getElectronAPI().createOrder({
         ...params,
         timestamp: Date.now()
       }, apiKey, apiSecret);
@@ -42,6 +45,7 @@ export class TradeApi {
       logger.info('订单创建成功:', response);
       return response;
     } catch (error) {
+      const logger = require('../../utils/logger').logger;
       logger.error('创建订单失败:', error);
       
       if (error instanceof BinanceApiError) {
@@ -70,13 +74,15 @@ export class TradeApi {
       timestamp: Date.now()
     };
 
-    if (!window.electronAPI) {
+    if (!isElectronAPIAvailable()) {
       throw new Error('Electron API is not available');
     }
 
     try {
+      const logger = require('../../utils/logger').logger;
       logger.info(`撤销订单: ${symbol} #${orderId}`);
-      const response = await window.electronAPI.cancelOrder(params, apiKey, apiSecret);
+      
+      const response = await getElectronAPI().cancelOrder(params, apiKey, apiSecret);
       
       if (response.code) {
         throw new BinanceApiError(response.code, response.msg);
@@ -84,6 +90,7 @@ export class TradeApi {
       
       return response;
     } catch (error) {
+      const logger = require('../../utils/logger').logger;
       logger.error(`撤销订单失败: ${symbol} #${orderId}`, error);
       throw error;
     }
@@ -91,14 +98,16 @@ export class TradeApi {
 
   // 获取账户信息
   async getAccountInfo(apiKey: string, apiSecret: string): Promise<any> {
-    if (!window.electronAPI) {
+    if (!isElectronAPIAvailable()) {
       throw new Error('Electron API is not available');
     }
 
     try {
+      const logger = require('../../utils/logger').logger;
       logger.info('获取账户信息');
+      
       const params = { timestamp: Date.now() };
-      const response = await window.electronAPI.getAccountInfo(params, apiKey, apiSecret);
+      const response = await getElectronAPI().getAccountInfo(params, apiKey, apiSecret);
       
       if (response.code) {
         throw new BinanceApiError(response.code, response.msg);
@@ -106,6 +115,7 @@ export class TradeApi {
       
       return response;
     } catch (error) {
+      const logger = require('../../utils/logger').logger;
       logger.error('获取账户信息失败:', error);
       throw error;
     }
@@ -113,3 +123,4 @@ export class TradeApi {
 }
 
 export const tradeApi = new TradeApi();
+    

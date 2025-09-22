@@ -1,0 +1,1 @@
+{"version":3,"file":"types.js","sourceRoot":"","sources":["../../../../src/api/binance/types.ts"],"names":[],"mappings":";;;AA0DA,oBAAoB;AACpB,MAAa,eAAgB,SAAQ,KAAK;IAIxC,YAAY,IAAY,EAAE,GAAW;QACnC,KAAK,CAAC,sBAAsB,GAAG,WAAW,IAAI,GAAG,CAAC,CAAC;QACnD,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC;QACjB,IAAI,CAAC,GAAG,GAAG,GAAG,CAAC;QACf,IAAI,CAAC,IAAI,GAAG,iBAAiB,CAAC;IAChC,CAAC;CACF;AAVD,0CAUC"}

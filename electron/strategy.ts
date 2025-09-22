@@ -2,6 +2,7 @@ import { log } from './main';
 import { tradeApi } from '../src/api/binance/trade';
 import { marketApi } from '../src/api/binance/market';
 import { BinanceApiError } from '../src/api/binance/types';
+import { isElectronAPIAvailable, getElectronAPI } from '../src/api/electron';
 
 interface Kline {
   open: string;
@@ -664,3 +665,4 @@ export class TradingStrategy {
     return { ...this.state };
   }
 }
+    
