@@ -34,17 +34,21 @@
     }
   },
   "dependencies": {
+    "crypto-js": "^4.2.0",
     "electron-log": "^4.4.8",
-    "electron-updater": "^6.1.4"
+    "electron-updater": "^6.1.4",
+    "pinia": "^3.0.3",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@types/node": "^20.8.7",
+    "@vitejs/plugin-vue": "^4.6.2",
     "concurrently": "^8.2.2",
     "electron": "^27.0.3",
     "electron-builder": "^24.6.4",
     "rimraf": "^5.0.5",
+    "sass": "^1.93.0",
     "typescript": "^5.2.2",
     "vite": "^4.5.0"
   }
 }
-    

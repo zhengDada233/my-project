@@ -1,10 +1,9 @@
 // src/utils/logger.ts
-import { getAppName, getAppVersion, isDevelopment, envInfo } from './env';
-import { isElectronAPIAvailable, getElectronAPI } from '../api/electron';
+import { getAppName, getAppVersion, isDevelopment, getEnvInfo } from './env.js';
+import { isElectronAPIAvailable, getElectronAPI } from '../api/electron.js';
 
 export class Logger {
   constructor() {
-    // 初始化日志
     this.initialize();
   }
 
@@ -18,7 +17,7 @@ export class Logger {
     // 记录应用启动信息
     this.info(`应用启动: ${getAppName()} v${getAppVersion()}`);
     this.info(`运行环境: ${isDevelopment() ? '开发' : '生产'}`);
-    this.info('环境变量:', envInfo);
+    this.info('环境变量:', getEnvInfo());
   }
 
   /**
@@ -28,8 +27,8 @@ export class Logger {
     const fullMessage = data ? `${message} ${JSON.stringify(data)}` : message;
     console.log(`[INFO] ${new Date().toISOString()} ${fullMessage}`);
     
-    // 如果Electron API可用，同时发送到主进程日志
-    if (isElectronAPIAvailable() && getElectronAPI().log) {
+    // 使用统一的API访问方式
+    if (isElectronAPIAvailable()) {
       getElectronAPI().log.info(fullMessage);
     }
   }
@@ -41,7 +40,7 @@ export class Logger {
     const fullMessage = data ? `${message} ${JSON.stringify(data)}` : message;
     console.error(`[ERROR] ${new Date().toISOString()} ${fullMessage}`);
     
-    if (isElectronAPIAvailable() && getElectronAPI().log) {
+    if (isElectronAPIAvailable()) {
       getElectronAPI().log.error(fullMessage);
     }
   }
@@ -53,7 +52,7 @@ export class Logger {
     const fullMessage = data ? `${message} ${JSON.stringify(data)}` : message;
     console.warn(`[WARN] ${new Date().toISOString()} ${fullMessage}`);
     
-    if (isElectronAPIAvailable() && getElectronAPI().log) {
+    if (isElectronAPIAvailable()) {
       getElectronAPI().log.warn(fullMessage);
     }
   }
@@ -65,7 +64,7 @@ export class Logger {
     const fullMessage = data ? `${message} ${JSON.stringify(data)}` : message;
     console.debug(`[DEBUG] ${new Date().toISOString()} ${fullMessage}`);
     
-    if (isElectronAPIAvailable() && getElectronAPI().log) {
+    if (isElectronAPIAvailable()) {
       getElectronAPI().log.debug(fullMessage);
     }
   }
@@ -73,4 +72,3 @@ export class Logger {
 
 // 导出单例实例
 export const logger = new Logger();
-    

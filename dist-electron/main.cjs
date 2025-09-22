@@ -47,10 +47,10 @@ log.transports.file.level = 'info';
 log.transports.file.resolvePath = () => path.join(electron_1.app.getAppPath(), 'logs/main.log');
 log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}';
 log.transports.file.maxSize = 10 * 1024 * 1024; // 10MB
-// 设置默认NODE_ENV为production
-process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+// 设置默认VITE_APP_ENV为production
+process.env.VITE_APP_ENV = process.env.VITE_APP_ENV || 'production';
 // 在开发环境中也输出到控制台
-if (process.env.NODE_ENV === 'development') {
+if (process.env.VITE_APP_ENV === 'development') {
     log.transports.console.level = 'debug';
 }
 else {
@@ -59,7 +59,7 @@ else {
 }
 // 在应用启动日志中添加环境信息
 log.info('=== 应用启动 ===');
-log.info('运行环境:', process.env.NODE_ENV);
+log.info('运行环境:', process.env.VITE_APP_ENV);
 log.info('应用版本:', electron_1.app.getVersion());
 log.info('运行平台:', process.platform);
 log.info('运行架构:', process.arch);
@@ -70,7 +70,7 @@ let TradingStrategy;
 const activeStrategies = new Map();
 let mainWindow = null;
 function createWindow() {
-    const preloadPath = process.env.NODE_ENV === 'development'
+    const preloadPath = process.env.VITE_APP_ENV === 'development'
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, 'preload.cjs');
     mainWindow = new electron_1.BrowserWindow({
@@ -84,7 +84,7 @@ function createWindow() {
             webSecurity: false
         }
     });
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.VITE_APP_ENV === 'development') {
         log.info('Development mode: loading from dev server');
         mainWindow.loadURL('http://localhost:3000');
         mainWindow.webContents.openDevTools();
@@ -161,7 +161,7 @@ function createWindow() {
             log.info('Window is ready to show');
         });
         // 开发模式下禁用自动更新
-        if (process.env.NODE_ENV !== 'development') {
+        if (process.env.VITE_APP_ENV !== 'development') {
             // 初始化自动更新
             initAutoUpdater();
         }

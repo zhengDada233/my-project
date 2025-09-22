@@ -1,16 +1,17 @@
+// src/env.d.ts
+/**
+ * 环境变量类型定义
+ */
 interface ImportMetaEnv {
   [key: string]: string | boolean | undefined;
-  VITE_APP_NAME?: string;
-  VITE_API_URL?: string;
-  VITE_ENV?: 'development' | 'production' | 'test';
+  VITE_APP_NAME: string;
+  VITE_APP_VERSION: string;
+  VITE_DEV: boolean;
+  VITE_PROD: boolean;
 }
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-// 扩展全局Window类型
-interface Window {
-  electronAPI?: any;
-}
-    
+// 注意：已删除Window接口声明，统一由src/api/electron.ts管理

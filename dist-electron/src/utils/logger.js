@@ -1,88 +1,67 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logger = exports.LogLevel = void 0;
-const env_1 = require("./env");
-// 日志级别枚举
-var LogLevel;
-(function (LogLevel) {
-    LogLevel["ERROR"] = "error";
-    LogLevel["WARN"] = "warn";
-    LogLevel["INFO"] = "info";
-    LogLevel["DEBUG"] = "debug";
-})(LogLevel || (exports.LogLevel = LogLevel = {}));
-// 日志级别权重
-const logLevelWeights = {
-    [LogLevel.ERROR]: 4,
-    [LogLevel.WARN]: 3,
-    [LogLevel.INFO]: 2,
-    [LogLevel.DEBUG]: 1
-};
-// 获取当前日志级别权重
-const getCurrentLogLevelWeight = () => {
-    const level = (0, env_1.getLogLevel)().toLowerCase();
-    return logLevelWeights[level] || logLevelWeights[LogLevel.INFO];
-};
-// 检查是否应该记录日志
-const shouldLog = (level) => {
-    const currentWeight = getCurrentLogLevelWeight();
-    const targetWeight = logLevelWeights[level];
-    return targetWeight >= currentWeight;
-};
-// 统一的日志工具
-exports.logger = {
-    info: (message, ...args) => {
-        if (!shouldLog(LogLevel.INFO))
-            return;
-        const fullMessage = `${message} ${args.length ? JSON.stringify(args) : ''}`;
-        if (window.electronAPI && window.electronAPI.log) {
-            window.electronAPI.log.info(fullMessage);
-        }
-        else {
-            console.log(`[INFO] ${new Date().toISOString()}: ${fullMessage}`);
-        }
-    },
-    error: (message, ...args) => {
-        if (!shouldLog(LogLevel.ERROR))
-            return;
-        const fullMessage = `${message} ${args.length ? JSON.stringify(args) : ''}`;
-        if (window.electronAPI && window.electronAPI.log) {
-            window.electronAPI.log.error(fullMessage);
-        }
-        else {
-            console.error(`[ERROR] ${new Date().toISOString()}: ${fullMessage}`);
-        }
-    },
-    warn: (message, ...args) => {
-        if (!shouldLog(LogLevel.WARN))
-            return;
-        const fullMessage = `${message} ${args.length ? JSON.stringify(args) : ''}`;
-        if (window.electronAPI && window.electronAPI.log) {
-            window.electronAPI.log.warn(fullMessage);
-        }
-        else {
-            console.warn(`[WARN] ${new Date().toISOString()}: ${fullMessage}`);
-        }
-    },
-    debug: (message, ...args) => {
-        if (!shouldLog(LogLevel.DEBUG))
-            return;
-        const fullMessage = `${message} ${args.length ? JSON.stringify(args) : ''}`;
-        if (window.electronAPI && window.electronAPI.log) {
-            window.electronAPI.log.debug(fullMessage);
-        }
-        else {
-            console.debug(`[DEBUG] ${new Date().toISOString()}: ${fullMessage}`);
-        }
-    },
-    // 环境信息日志
-    logEnvironment: () => {
-        if (!shouldLog(LogLevel.INFO))
-            return;
-        const { getEnvReport, isDevelopment, isProduction, getAppName, getAppVersion } = require('./env');
-        const envInfo = getEnvReport();
-        this.info(`应用启动: ${getAppName()} v${getAppVersion()}`);
-        this.info(`运行环境: ${isDevelopment() ? '开发' : isProduction() ? '生产' : '未知'}`);
-        this.info('环境变量:', envInfo);
+exports.logger = exports.Logger = void 0;
+// src/utils/logger.ts
+const env_js_1 = require("./env.js");
+const electron_js_1 = require("../api/electron.js");
+class Logger {
+    constructor() {
+        this.initialize();
     }
-};
+    initialize() {
+        // 绑定this上下文
+        this.info = this.info.bind(this);
+        this.error = this.error.bind(this);
+        this.warn = this.warn.bind(this);
+        this.debug = this.debug.bind(this);
+        // 记录应用启动信息
+        this.info(`应用启动: ${(0, env_js_1.getAppName)()} v${(0, env_js_1.getAppVersion)()}`);
+        this.info(`运行环境: ${(0, env_js_1.isDevelopment)() ? '开发' : '生产'}`);
+        this.info('环境变量:', (0, env_js_1.getEnvInfo)());
+    }
+    /**
+     * 记录信息日志
+     */
+    info(message, data) {
+        const fullMessage = data ? `${message} ${JSON.stringify(data)}` : message;
+        console.log(`[INFO] ${new Date().toISOString()} ${fullMessage}`);
+        // 使用统一的API访问方式
+        if ((0, electron_js_1.isElectronAPIAvailable)()) {
+            (0, electron_js_1.getElectronAPI)().log.info(fullMessage);
+        }
+    }
+    /**
+     * 记录错误日志
+     */
+    error(message, data) {
+        const fullMessage = data ? `${message} ${JSON.stringify(data)}` : message;
+        console.error(`[ERROR] ${new Date().toISOString()} ${fullMessage}`);
+        if ((0, electron_js_1.isElectronAPIAvailable)()) {
+            (0, electron_js_1.getElectronAPI)().log.error(fullMessage);
+        }
+    }
+    /**
+     * 记录警告日志
+     */
+    warn(message, data) {
+        const fullMessage = data ? `${message} ${JSON.stringify(data)}` : message;
+        console.warn(`[WARN] ${new Date().toISOString()} ${fullMessage}`);
+        if ((0, electron_js_1.isElectronAPIAvailable)()) {
+            (0, electron_js_1.getElectronAPI)().log.warn(fullMessage);
+        }
+    }
+    /**
+     * 记录调试日志
+     */
+    debug(message, data) {
+        const fullMessage = data ? `${message} ${JSON.stringify(data)}` : message;
+        console.debug(`[DEBUG] ${new Date().toISOString()} ${fullMessage}`);
+        if ((0, electron_js_1.isElectronAPIAvailable)()) {
+            (0, electron_js_1.getElectronAPI)().log.debug(fullMessage);
+        }
+    }
+}
+exports.Logger = Logger;
+// 导出单例实例
+exports.logger = new Logger();
 //# sourceMappingURL=logger.js.map

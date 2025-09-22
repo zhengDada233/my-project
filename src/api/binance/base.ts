@@ -1,81 +1,90 @@
-import { BinanceApiError } from './types';
-import { isElectronAPIAvailable, getElectronAPI } from '../electron';
+// src/api/binance/base.ts
+import { isElectronAPIAvailable, getElectronAPI } from '../electron.js';
+import { logger } from '../../utils/logger.js';
 
+// 定义Binance错误数据结构
+export interface BinanceErrorData {
+  code: number;
+  msg: string;
+}
+
+// Binance API错误类
+export class BinanceApiError extends Error {
+  code: number;
+  
+  constructor(code: number, message: string) {
+    super(message);
+    this.name = 'BinanceApiError';
+    this.code = code;
+  }
+}
+
+// Binance API基础类
 export class BinanceApiBase {
-  private baseUrl = 'https://api.binance.com/api/v3/';
+  protected baseUrl = 'https://api.binance.com/api/v3';
 
-  // 公共请求（无需签名）
-  async publicRequest<T>(endpoint: string, params: any = {}): Promise<T> {
+  /**
+   * 发送带签名的请求（需要API密钥）
+   */
+  protected async signedRequest<T>(endpoint: string, params: any, apiKey: string, apiSecret: string): Promise<T> {
+    if (!isElectronAPIAvailable()) {
+      throw new Error('Electron API is not available');
+    }
+
     try {
-      // 构建查询字符串
-      const queryParams = new URLSearchParams();
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, value.toString());
-        }
-      });
-
-      const url = `${this.baseUrl}${endpoint}?${queryParams.toString()}`;
+      logger.debug(`发送签名请求: ${endpoint}`, params);
+      const response = await getElectronAPI().sendSignedRequest(
+        { ...params, url: `${this.baseUrl}/${endpoint}` },
+        apiKey,
+        apiSecret
+      );
       
-      // 检查是否在Electron环境中
-      if (isElectronAPIAvailable()) {
-        return getElectronAPI().sendPublicRequest(url);
+      if (response.code) {
+        throw new BinanceApiError(response.code, response.msg);
       }
       
-      // 非Electron环境下的处理（如浏览器）
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new BinanceApiError(
-          errorData?.code || response.status,
-          errorData?.msg || `HTTP error! status: ${response.status}`
-        );
-      }
-      
-      return response.json() as Promise<T>;
+      return response;
     } catch (error) {
-      console.error('Binance API public request failed:', error);
+      logger.error(`签名请求失败: ${endpoint}`, error);
       
       if (error instanceof BinanceApiError) {
         throw error;
       }
       
-      // 处理未知错误类型
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       throw new BinanceApiError(-1, errorMsg);
     }
   }
 
-  // 私有请求（需要签名）
-  async signedRequest<T>(endpoint: string, params: any, apiKey: string, apiSecret: string): Promise<T> {
+  /**
+   * 发送公开请求（不需要API密钥）
+   */
+  protected async publicRequest<T>(endpoint: string, params: any = {}): Promise<T> {
+    if (!isElectronAPIAvailable()) {
+      throw new Error('Electron API is not available');
+    }
+
     try {
-      if (!isElectronAPIAvailable()) {
-        throw new Error('Electron API is not available for signed requests');
-      }
-      
-      // 添加时间戳（如果不存在）
-      if (!params.timestamp) {
-        params.timestamp = Date.now();
-      }
-      
-      return getElectronAPI().sendSignedRequest(
-        `${this.baseUrl}${endpoint}`,
-        params,
-        apiKey,
-        apiSecret
+      logger.debug(`发送公开请求: ${endpoint}`, params);
+      const response = await getElectronAPI().sendPublicRequest(
+        `${this.baseUrl}/${endpoint}`,
+        params
       );
+      
+      if (response.code) {
+        throw new BinanceApiError(response.code, response.msg);
+      }
+      
+      return response;
     } catch (error) {
-      console.error('Binance API signed request failed:', error);
+      logger.error(`公开请求失败: ${endpoint}`, error);
       
       if (error instanceof BinanceApiError) {
         throw error;
       }
       
-      // 处理未知错误类型
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       throw new BinanceApiError(-1, errorMsg);
     }
   }
 }
-    

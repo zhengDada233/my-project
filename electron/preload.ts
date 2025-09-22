@@ -1,63 +1,43 @@
+// electron/preload.ts
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
-
-// 定义更新相关类型
-export interface UpdateInfo {
-  version: string;
-  releaseDate: string;
-  changelog?: string;
-}
-
-export interface DownloadProgress {
-  percent: number;
-  transferred: number;
-  total: number;
-  bytesPerSecond: number;
-}
-
-// 定义Electron API接口
-export interface ElectronAPI {
-  checkForUpdates: () => Promise<void>;
-  downloadUpdate: () => Promise<void>;
-  restartAndUpdate: () => Promise<void>;
-  onUpdateStatus: (callback: (event: IpcRendererEvent, message: string) => void) => void;
-  onUpdateAvailable: (callback: (event: IpcRendererEvent, info: UpdateInfo) => void) => void;
-  onUpdateNotAvailable: (callback: (event: IpcRendererEvent, info: UpdateInfo) => void) => void;
-  onUpdateError: (callback: (event: IpcRendererEvent, message: string) => void) => void;
-  onDownloadProgress: (callback: (event: IpcRendererEvent, progress: DownloadProgress) => void) => void;
-  onUpdateDownloaded: (callback: (event: IpcRendererEvent, info: UpdateInfo) => void) => void;
-  removeAllListeners: (channel: string) => void;
-  sendSignedRequest: (params: any, apiKey: string, apiSecret: string) => Promise<any>;
-  pingBinance: () => Promise<any>;
-  diagnoseNetwork: () => Promise<any>;
-  getExchangeInfo: (symbol: string) => Promise<any>;
-}
+import { ElectronAPI } from '../src/api/electron.js';
 
 // 实现Electron API
 const electronAPI: ElectronAPI = {
-  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
-  downloadUpdate: () => ipcRenderer.invoke('download-update'),
-  restartAndUpdate: () => ipcRenderer.invoke('restart-and-update'),
-  onUpdateStatus: (callback) => ipcRenderer.on('update-status', callback),
-  onUpdateAvailable: (callback) => ipcRenderer.on('update-available', callback),
-  onUpdateNotAvailable: (callback) => ipcRenderer.on('update-not-available', callback),
-  onUpdateError: (callback) => ipcRenderer.on('update-error', callback),
-  onDownloadProgress: (callback) => ipcRenderer.on('download-progress', callback),
-  onUpdateDownloaded: (callback) => ipcRenderer.on('update-downloaded', callback),
-  removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
+  log: {
+    info: (...args: any[]) => ipcRenderer.invoke('log:info', ...args),
+    warn: (...args: any[]) => ipcRenderer.invoke('log:warn', ...args),
+    error: (...args: any[]) => ipcRenderer.invoke('log:error', ...args),
+    debug: (...args: any[]) => ipcRenderer.invoke('log:debug', ...args),
+  },
+  createOrder: (params, apiKey, apiSecret) => 
+    ipcRenderer.invoke('order:create', params, apiKey, apiSecret),
+  cancelOrder: (params, apiKey, apiSecret) => 
+    ipcRenderer.invoke('order:cancel', params, apiKey, apiSecret),
+  getAccountInfo: (params, apiKey, apiSecret) => 
+    ipcRenderer.invoke('account:info', params, apiKey, apiSecret),
   sendSignedRequest: (params, apiKey, apiSecret) => 
-    ipcRenderer.invoke('send-signed-request', params, apiKey, apiSecret),
-  pingBinance: () => ipcRenderer.invoke('ping-binance'),
-  diagnoseNetwork: () => ipcRenderer.invoke('diagnose-network'),
-  getExchangeInfo: (symbol) => ipcRenderer.invoke('get-exchange-info', symbol)
+    ipcRenderer.invoke('request:signed', params, apiKey, apiSecret),
+  sendPublicRequest: (endpoint, params) => 
+    ipcRenderer.invoke('request:public', endpoint, params),
+  startTradingStrategy: (config) => 
+    ipcRenderer.invoke('strategy:start', config),
+  stopTradingStrategy: (symbol) => 
+    ipcRenderer.invoke('strategy:stop', symbol),
+  getTradingStrategyStatus: (symbol) => 
+    ipcRenderer.invoke('strategy:status', symbol),
+  checkForUpdates: () => ipcRenderer.invoke('update:check'),
+  downloadUpdate: () => ipcRenderer.invoke('update:download'),
+  restartAndUpdate: () => ipcRenderer.invoke('update:restart'),
+  onUpdateStatus: (callback) => {
+    ipcRenderer.on('update:status', (event: IpcRendererEvent, message: string) => {
+      callback(event, message);
+    });
+  },
+  removeAllListeners: (channel) => {
+    ipcRenderer.removeAllListeners(channel);
+  }
 };
 
-// 暴露API给渲染进程
+// 注入API到window对象
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);
-
-// 扩展Window接口
-declare global {
-  interface Window {
-    electronAPI: ElectronAPI;
-  }
-}
-    

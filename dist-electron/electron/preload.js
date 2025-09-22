@@ -1,23 +1,35 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+// electron/preload.ts
 const electron_1 = require("electron");
 // 实现Electron API
 const electronAPI = {
-    checkForUpdates: () => electron_1.ipcRenderer.invoke('check-for-updates'),
-    downloadUpdate: () => electron_1.ipcRenderer.invoke('download-update'),
-    restartAndUpdate: () => electron_1.ipcRenderer.invoke('restart-and-update'),
-    onUpdateStatus: (callback) => electron_1.ipcRenderer.on('update-status', callback),
-    onUpdateAvailable: (callback) => electron_1.ipcRenderer.on('update-available', callback),
-    onUpdateNotAvailable: (callback) => electron_1.ipcRenderer.on('update-not-available', callback),
-    onUpdateError: (callback) => electron_1.ipcRenderer.on('update-error', callback),
-    onDownloadProgress: (callback) => electron_1.ipcRenderer.on('download-progress', callback),
-    onUpdateDownloaded: (callback) => electron_1.ipcRenderer.on('update-downloaded', callback),
-    removeAllListeners: (channel) => electron_1.ipcRenderer.removeAllListeners(channel),
-    sendSignedRequest: (params, apiKey, apiSecret) => electron_1.ipcRenderer.invoke('send-signed-request', params, apiKey, apiSecret),
-    pingBinance: () => electron_1.ipcRenderer.invoke('ping-binance'),
-    diagnoseNetwork: () => electron_1.ipcRenderer.invoke('diagnose-network'),
-    getExchangeInfo: (symbol) => electron_1.ipcRenderer.invoke('get-exchange-info', symbol)
+    log: {
+        info: (...args) => electron_1.ipcRenderer.invoke('log:info', ...args),
+        warn: (...args) => electron_1.ipcRenderer.invoke('log:warn', ...args),
+        error: (...args) => electron_1.ipcRenderer.invoke('log:error', ...args),
+        debug: (...args) => electron_1.ipcRenderer.invoke('log:debug', ...args),
+    },
+    createOrder: (params, apiKey, apiSecret) => electron_1.ipcRenderer.invoke('order:create', params, apiKey, apiSecret),
+    cancelOrder: (params, apiKey, apiSecret) => electron_1.ipcRenderer.invoke('order:cancel', params, apiKey, apiSecret),
+    getAccountInfo: (params, apiKey, apiSecret) => electron_1.ipcRenderer.invoke('account:info', params, apiKey, apiSecret),
+    sendSignedRequest: (params, apiKey, apiSecret) => electron_1.ipcRenderer.invoke('request:signed', params, apiKey, apiSecret),
+    sendPublicRequest: (endpoint, params) => electron_1.ipcRenderer.invoke('request:public', endpoint, params),
+    startTradingStrategy: (config) => electron_1.ipcRenderer.invoke('strategy:start', config),
+    stopTradingStrategy: (symbol) => electron_1.ipcRenderer.invoke('strategy:stop', symbol),
+    getTradingStrategyStatus: (symbol) => electron_1.ipcRenderer.invoke('strategy:status', symbol),
+    checkForUpdates: () => electron_1.ipcRenderer.invoke('update:check'),
+    downloadUpdate: () => electron_1.ipcRenderer.invoke('update:download'),
+    restartAndUpdate: () => electron_1.ipcRenderer.invoke('update:restart'),
+    onUpdateStatus: (callback) => {
+        electron_1.ipcRenderer.on('update:status', (event, message) => {
+            callback(event, message);
+        });
+    },
+    removeAllListeners: (channel) => {
+        electron_1.ipcRenderer.removeAllListeners(channel);
+    }
 };
-// 暴露API给渲染进程
+// 注入API到window对象
 electron_1.contextBridge.exposeInMainWorld('electronAPI', electronAPI);
 //# sourceMappingURL=preload.js.map
