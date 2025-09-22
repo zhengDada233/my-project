@@ -1,43 +1,40 @@
-# .github/workflows/release.yml
-name: Release
+name: 自动构建和发布
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'  # 当推送v开头的标签时触发（如v1.0.0）
 
 jobs:
-  release:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+  build-and-release:
+    runs-on: windows-latest  # 使用Windows环境构建Windows安装包
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: 拉取代码
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-        cache: 'npm'
+      - name: 安装Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: 安装依赖
+        run: npm ci
 
-    - name: Build application
-      run: npm run electron:build
+      - name: 构建应用
+        run: npm run dist:win
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 用于发布的GitHub Token
 
-    - name: Create release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: |
-          release/*.exe
-          release/*.dmg
-          release/*.AppImage
-          latest.yml
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 发布到GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.exe
+            dist/*.msi
+            dist/*.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
