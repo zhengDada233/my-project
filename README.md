@@ -4,21 +4,16 @@ This template should help get you started developing with Vue 3 and TypeScript i
 
 Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
 
-# 完整的生产环境构建流程
+确认打包成功生成了安装包：
+bash
+# 先单独执行打包命令，确认文件生成
 npm run dist:win
-
-# 如果需要清理构建文件
-npm run clean
-
-重新构建 Electron 应用：
-
-npm run clean
-npm run build:electron
-npm run rename-main
-
-重新打包应用：
-
-npm run dist:win
+# 检查release目录
+dir release
+确保路径中没有特殊字符（如&、(等），仅包含空格是安全的
+执行最终发布命令：
+bash
+npm run release:win
 
 # 运行打包后的应用（带日志）
 npm run run:exe
