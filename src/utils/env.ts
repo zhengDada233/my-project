@@ -1,60 +1,61 @@
-interface EnvConfig {
-  [key: string]: string;
+// src/utils/env.ts
+interface ImportMetaEnv {
+  [key: string]: string | boolean | undefined;
+  VITE_APP_NAME: string;
+  VITE_APP_VERSION: string;
+  VITE_DEV: boolean;
+  VITE_PROD: boolean;
 }
 
-/**
- * 获取环境变量
- * @param key 环境变量键名
- * @param defaultValue 默认值
- * @returns 环境变量值或默认值
- */
-export function getEnv(key: string, defaultValue: string = ''): string {
-  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) {
-    return import.meta.env[key] as string;
-  }
-  return defaultValue;
-}
-
-/**
- * 检查是否为开发环境
- * @returns 是否为开发环境
- */
-export function isDevelopment(): boolean {
-  return getEnv('VITE_ENV') === 'development';
-}
-
-/**
- * 检查是否为生产环境
- * @returns 是否为生产环境
- */
-export function isProduction(): boolean {
-  return getEnv('VITE_ENV') === 'production';
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
 }
 
 /**
  * 获取应用名称
- * @returns 应用名称
  */
-export function getAppName(): string {
-  return getEnv('VITE_APP_NAME', '加密货币交易策略');
-}
+export const getAppName = (): string => {
+  return import.meta.env.VITE_APP_NAME || '加密货币交易助手';
+};
 
 /**
- * 获取API基础URL
- * @returns API基础URL
+ * 获取应用版本号
  */
-export function getApiBaseUrl(): string {
-  return getEnv('VITE_API_URL', 'https://api.example.com');
-}
+export const getAppVersion = (): string => {
+  return import.meta.env.VITE_APP_VERSION || '1.0.0';
+};
+
+/**
+ * 检查是否为开发环境
+ */
+export const isDevelopment = (): boolean => {
+  return import.meta.env.VITE_DEV || false;
+};
+
+/**
+ * 检查是否为生产环境
+ */
+export const isProduction = (): boolean => {
+  return import.meta.env.VITE_PROD || false;
+};
+
+/**
+ * 获取环境变量值
+ */
+export const getEnv = (key: string): string | undefined => {
+  if (import.meta.env[key]) {
+    return import.meta.env[key] as string;
+  }
+  return undefined;
+};
 
 /**
  * 获取所有环境变量
- * @returns 环境变量对象
  */
-export function getAllEnv(): EnvConfig {
-  const env: EnvConfig = {};
+export const getAllEnv = (): Record<string, string> => {
+  const env: Record<string, string> = {};
   
-  if (typeof import.meta !== 'undefined' && import.meta.env) {
+  if (import.meta.env) {
     for (const key in import.meta.env) {
       if (import.meta.env[key]) {
         env[key] = import.meta.env[key] as string;
@@ -63,11 +64,13 @@ export function getAllEnv(): EnvConfig {
   }
   
   return env;
-}
+};
 
-// 应用启动时记录环境信息
-const envInfo = getAllEnv();
-if (isDevelopment()) {
-  console.log('当前环境变量:', envInfo);
-}
+// 导出环境信息用于日志
+export const envInfo = {
+  appName: getAppName(),
+  appVersion: getAppVersion(),
+  isDevelopment: isDevelopment(),
+  isProduction: isProduction()
+};
     

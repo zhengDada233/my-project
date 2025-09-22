@@ -1,124 +1,76 @@
-import { getAppName, getAppVersion, isDevelopment } from './env';
+// src/utils/logger.ts
+import { getAppName, getAppVersion, isDevelopment, envInfo } from './env';
 import { isElectronAPIAvailable, getElectronAPI } from '../api/electron';
 
 export class Logger {
-  private prefix: string;
-  
-  constructor(prefix: string = '') {
-    this.prefix = prefix ? `[${prefix}] ` : '';
+  constructor() {
+    // 初始化日志
+    this.initialize();
+  }
+
+  private initialize() {
     // 绑定this上下文
     this.info = this.info.bind(this);
     this.error = this.error.bind(this);
     this.warn = this.warn.bind(this);
     this.debug = this.debug.bind(this);
-  }
-  
-  /**
-   * 记录信息日志
-   * @param message 日志消息
-   * @param data 附加数据
-   */
-  info(message: string, data?: any): void {
-    const fullMessage = `${this.prefix}${message}`;
-    
-    // 控制台输出
-    if (data) {
-      console.info(fullMessage, data);
-    } else {
-      console.info(fullMessage);
-    }
-    
-    // Electron日志
-    if (isElectronAPIAvailable() && getElectronAPI().log) {
-      getElectronAPI().log.info(fullMessage, data);
-    }
-  }
-  
-  /**
-   * 记录错误日志
-   * @param message 日志消息
-   * @param error 错误对象
-   */
-  error(message: string, error?: any): void {
-    const fullMessage = `${this.prefix}${message}`;
-    
-    // 控制台输出
-    if (error) {
-      console.error(fullMessage, error);
-    } else {
-      console.error(fullMessage);
-    }
-    
-    // Electron日志
-    if (isElectronAPIAvailable() && getElectronAPI().log) {
-      getElectronAPI().log.error(fullMessage, error);
-    }
-  }
-  
-  /**
-   * 记录警告日志
-   * @param message 日志消息
-   * @param data 附加数据
-   */
-  warn(message: string, data?: any): void {
-    const fullMessage = `${this.prefix}${message}`;
-    
-    // 控制台输出
-    if (data) {
-      console.warn(fullMessage, data);
-    } else {
-      console.warn(fullMessage);
-    }
-    
-    // Electron日志
-    if (isElectronAPIAvailable() && getElectronAPI().log) {
-      getElectronAPI().log.warn(fullMessage, data);
-    }
-  }
-  
-  /**
-   * 记录调试日志（仅开发环境）
-   * @param message 日志消息
-   * @param data 附加数据
-   */
-  debug(message: string, data?: any): void {
-    if (!isDevelopment()) return;
-    
-    const fullMessage = `${this.prefix}${message}`;
-    
-    // 控制台输出
-    if (data) {
-      console.debug(fullMessage, data);
-    } else {
-      console.debug(fullMessage);
-    }
-    
-    // Electron日志
-    if (isElectronAPIAvailable() && getElectronAPI().log) {
-      getElectronAPI().log.debug(fullMessage, data);
-    }
-  }
-}
 
-// 创建默认日志实例
-export const logger = new Logger();
-
-// 应用启动日志
-export class AppLogger extends Logger {
-  constructor() {
-    super('App');
-    
     // 记录应用启动信息
-    const envInfo = {
-      development: isDevelopment(),
-      version: getAppVersion()
-    };
-    
     this.info(`应用启动: ${getAppName()} v${getAppVersion()}`);
     this.info(`运行环境: ${isDevelopment() ? '开发' : '生产'}`);
     this.info('环境变量:', envInfo);
   }
+
+  /**
+   * 记录信息日志
+   */
+  info(message: string, data?: any) {
+    const fullMessage = data ? `${message} ${JSON.stringify(data)}` : message;
+    console.log(`[INFO] ${new Date().toISOString()} ${fullMessage}`);
+    
+    // 如果Electron API可用，同时发送到主进程日志
+    if (isElectronAPIAvailable() && getElectronAPI().log) {
+      getElectronAPI().log.info(fullMessage);
+    }
+  }
+
+  /**
+   * 记录错误日志
+   */
+  error(message: string, data?: any) {
+    const fullMessage = data ? `${message} ${JSON.stringify(data)}` : message;
+    console.error(`[ERROR] ${new Date().toISOString()} ${fullMessage}`);
+    
+    if (isElectronAPIAvailable() && getElectronAPI().log) {
+      getElectronAPI().log.error(fullMessage);
+    }
+  }
+
+  /**
+   * 记录警告日志
+   */
+  warn(message: string, data?: any) {
+    const fullMessage = data ? `${message} ${JSON.stringify(data)}` : message;
+    console.warn(`[WARN] ${new Date().toISOString()} ${fullMessage}`);
+    
+    if (isElectronAPIAvailable() && getElectronAPI().log) {
+      getElectronAPI().log.warn(fullMessage);
+    }
+  }
+
+  /**
+   * 记录调试日志
+   */
+  debug(message: string, data?: any) {
+    const fullMessage = data ? `${message} ${JSON.stringify(data)}` : message;
+    console.debug(`[DEBUG] ${new Date().toISOString()} ${fullMessage}`);
+    
+    if (isElectronAPIAvailable() && getElectronAPI().log) {
+      getElectronAPI().log.debug(fullMessage);
+    }
+  }
 }
 
-// 初始化应用日志
-export const appLogger = new AppLogger();
+// 导出单例实例
+export const logger = new Logger();
+    
