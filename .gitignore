@@ -12,7 +12,10 @@ dist
 dist-ssr
 *.local
 
-/release/
+# 忽略release目录下的临时文件，但不忽略安装包
+release/
+!release/*.exe
+!release/*.msi
 
 # Editor directories and files
 .vscode/*
